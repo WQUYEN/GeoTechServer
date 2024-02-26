@@ -17,6 +17,4 @@ const optionSchema = new mongoose.Schema(
 
 const option = mongoose.model("option", optionSchema);
 
-module.exports = {
-  option,
-};
+module.exports = option;

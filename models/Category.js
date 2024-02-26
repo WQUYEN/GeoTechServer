@@ -1,6 +1,6 @@
-const db  = require('../config/ConnectDB');
+const mongoose = require("mongoose");
 
-const Category = new db.mongoose.Schema({
+const Category = new mongoose.Schema({
     name: { type: String, require: true },
     image: { type: String },
     product: [{ type: db.mongoose.Schema.Types.ObjectId, ref: "product" }]
@@ -8,8 +8,7 @@ const Category = new db.mongoose.Schema({
     timestamps: true,
 });
 
-let category = db.mongoose.model('category', Category);
 
-module.exports = {
-    category,
-};
+const category = mongoose.model("category", Category);
+module.exports = category
+
