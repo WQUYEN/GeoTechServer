@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
- 
-const cartSchema = new mongoose.Schema(
+var db = require("../config/ConnectDB");
+
+const cartSchema = new db.mongoose.Schema(
   {
-    user_id: { type: mongoose.Schema.Types.ObjectId, ref: "account" },
-    option_id: { type: mongoose.Schema.Types.ObjectId, ref: "option" },
+    user_id: { type: db.mongoose.Schema.Types.ObjectId, ref: "account" },
+    option_id: { type: db.mongoose.Schema.Types.ObjectId, ref: "option" },
     quantity: {type: Number}
   },
   {
@@ -11,6 +11,5 @@ const cartSchema = new mongoose.Schema(
   }
 );
 
-const Cart = mongoose.model("cart", cartSchema);
-
-module.exports = Cart;
+let cart = db.mongoose.model("cart", cartSchema);
+module.exports = { cart };

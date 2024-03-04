@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+var db = require("../config/ConnectDB");
 
-const optionSchema = new mongoose.Schema(
+const optionSchema = new db.mongoose.Schema(
   {
-    product_id: { type: mongoose.Schema.Types.ObjectId, ref: "product" },
+    product_id: { type: db.mongoose.Schema.Types.ObjectId, ref: "product" },
     name_color: { type: String },
     color_code: { type: String },
     image: { type: String },
@@ -11,10 +11,12 @@ const optionSchema = new mongoose.Schema(
     quantity: { type: Number }, // số lượng của sản phẩm
     soldQuantity: { type: Number, default: 0 }, // số lượng đã bán
     hot_option: { type: Boolean, default: false }, // option tốt nổi bật nhất
-  },    
+  },
   { timestamps: true }
 );
 
-const option = mongoose.model("option", optionSchema);
+let option = db.mongoose.model("option", optionSchema);
 
-module.exports = option;
+module.exports = {
+  option,
+};
