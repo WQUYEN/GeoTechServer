@@ -38,7 +38,6 @@ router.get(
   middleware.checkToken,
   cartController.listCartForUser
 );
-
 router.post(
   "/create-cart-item",
   middleware.checkToken,
