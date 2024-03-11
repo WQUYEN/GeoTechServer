@@ -15,7 +15,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 router.get("/all-product", controller.getAllProducts);
-router.get("/all-product-by-store/:storeId", controller.getProductsByStore);
+// router.get("/all-product-by-store/:storeId", controller.getProductsByStore);
 router.get("/all-product-by-category", controller.getProductsByCategory);
 router.get("/detail-product/:productId", controller.detailProduct);
 router.get("/similar-product/:productId", controller.getSimilarProducts);
@@ -24,13 +24,13 @@ router.get("/top-product", controller.getTopProduct);
 router.post(
   "/create-product",
   middleware.checkToken,
-  middleware.checkStoreExits,
+  // middleware.checkStoreExits,
   controller.addProduct
 );
 router.put(
   "/update-product/:productId",
   middleware.checkToken,
-  middleware.checkStoreExits,
+  // middleware.checkStoreExits,
   controller.updateProduct
 );
 
@@ -44,21 +44,22 @@ router.put(
 router.post(
   "/create-option",
   middleware.checkToken,
-  middleware.checkStoreExits,
+  // middleware.checkStoreExits,
   upload.single("image"),
   controller.addOption
 );
 router.put(
   "/update-option/:optionId",
   middleware.checkToken,
-  middleware.checkStoreExits,
+  upload.single("image"),
+  // middleware.checkStoreExits,
   controller.updateOption
 );
 
 router.put(
   "/update-option-image/:optionId",
   middleware.checkToken,
-  middleware.checkStoreExits,
+  // middleware.checkStoreExits,
   upload.single("image"),
   controller.updateImageOption
 );
@@ -74,6 +75,6 @@ router.delete(
   controller.deleteProduct
 );
 
-router.post("/send-email", middleware.checkToken, controller.sendEmailToStore);
+// router.post("/send-email", middleware.checkToken, controller.sendEmailToStore);
 
 module.exports = router;

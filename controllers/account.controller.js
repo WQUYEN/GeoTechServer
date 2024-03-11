@@ -41,7 +41,7 @@ const uploadAvatar = async (req, res, next) => {
     const uid = req.params.uid;
     const user = await model.account.findById(uid);
     if (!user) {
-      return res.status(404).json({ code: 404, message: "User not found" }); 
+      return res.status(404).json({ code: 404, message: "User not found" });
     }
 
     console.log(req.file);
