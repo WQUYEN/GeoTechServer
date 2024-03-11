@@ -110,6 +110,7 @@ const updateStatusNotifi = async (req, res, next) => {
     }
 }
 
+
 module.exports = {
     newNotifiMessage,
     newNotifiComment,

@@ -27,6 +27,7 @@ router.put(
   middleware.checkToken,
   controller.resetPassword
 );
+
 router.put(
   "/upload-avatar/:uid",
   middleware.checkToken,

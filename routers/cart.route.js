@@ -38,16 +38,19 @@ router.get(
   middleware.checkToken,
   cartController.listCartForUser
 );
+
 router.post(
   "/create-cart-item",
   middleware.checkToken,
   cartController.createCartItem
 ); //add
+
 router.put(
   "/update-quantity/:id",
   middleware.checkToken,
   cartController.updateCartItemQuantity
 ); //edit
+
 router.delete(
   "/delete-cart-item/:id",
   middleware.checkToken,

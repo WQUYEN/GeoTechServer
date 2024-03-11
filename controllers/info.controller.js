@@ -114,6 +114,8 @@ const deleteInfo = async (req, res, next) => {
   }
 };
 
+
+
 module.exports = {
   getInfo,
   createInfo,
