@@ -12,4 +12,4 @@ router.put(
 );
 router.delete("/delete/:infoId", middleware.checkToken, controller.deleteInfo);
 
-module.exports = router;
+module.exports =  router;

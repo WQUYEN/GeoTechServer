@@ -20,6 +20,9 @@ router.get("/all-product-by-category", controller.getProductsByCategory);
 router.get("/detail-product/:productId", controller.detailProduct);
 router.get("/similar-product/:productId", controller.getSimilarProducts);
 router.get("/top-product", controller.getTopProduct);
+
+
+  
 //product
 router.post(
   "/create-product",

@@ -10,6 +10,9 @@ router.put(
   // middleware.checkStoreExits,
   controller.updateOrderStatus
 );
+
+
+
 router.get("/", middleware.checkToken, controller.getOrdersByUserId);
 router.get("/orders", middleware.checkToken, controller.getAllOrder);
 router.get(
