@@ -16,8 +16,8 @@ var infoRoute = require("./routes/info.route");
 var bannerRoute = require("./routes/banner.route");
 var storeRoute = require("./routes/store.route");
 var messageRoute = require("./routes/message.route");
-// var notifiRoute = require("./routes/notification.route");
-// var statisticalRoute = require('./routes/statistical.route'); 
+var notifiRoute = require("./routes/notification.route");
+var statisticalRoute = require('./routes/statistical.route'); 
 
 var app = express();
 app.use(cors());
