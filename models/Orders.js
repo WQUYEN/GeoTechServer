@@ -12,7 +12,7 @@ const orderSchema = new db.mongoose.Schema(
     total_price: { type: Number }, //tổng tiền tất cả mặt hàng
     status: {
       type: String,
-      enum: ["Chờ xác nhận", "Chờ giao hàng", "Đã giao hàng", "Đã hủy"],
+      enum: ["Chờ xác nhận", "Chờ giao hàng","Đang giao hàng", "Đã giao hàng", "Đã hủy"],
       default: "Chờ xác nhận",
     },
     info_id: {
