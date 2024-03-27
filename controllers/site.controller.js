@@ -324,8 +324,10 @@ const loginWithGoogle = async (req, res, next) => {
         is_active: true,
       });
 
+      
       // Save the new user to the database
       await newUser.save();
+
 
       // Perform the login logic for the new user and return a token
       const token = jwt.sign({ userId: newUser._id }, process.env.KEY_TOKEN);
