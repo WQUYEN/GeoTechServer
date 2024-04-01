@@ -33,6 +33,20 @@ const createOrder = async (req, res, next) => {
     // Save the order to the database
     const savedOrder = await newOrder.save();
 
+    // Loop through productsOrder array in the order
+    for (const product of productsOrder) {
+      const { option_id, quantity } = product;
+
+      // Find and update the option by ID
+      await optionModel.option.findByIdAndUpdate(
+        option_id,
+        {
+          $inc: { quantity: -quantity, soldQuantity: quantity },
+        },
+        { new: true }
+      );
+    }
+
     return res.status(201).json({
       code: 201,
       result: savedOrder,
@@ -128,19 +142,19 @@ const updateOrderStatus = async (req, res, next) => {
 
     // If the order status is updated to 'Đã giao hàng', update quantity and soldQuantity
     if (status === "Đã giao hàng") {
-      // Loop through productsOrder array in the order
-      for (const product of updatedOrder.productsOrder) {
-        const { option_id, quantity } = product;
+      // // Loop through productsOrder array in the order
+      // for (const product of updatedOrder.productsOrder) {
+      //   const { option_id, quantity } = product;
 
-        // Find and update the option by ID
-        await optionModel.option.findByIdAndUpdate(
-          option_id,
-          {
-            $inc: { quantity: -quantity, soldQuantity: quantity },
-          },
-          { new: true }
-        );
-      }
+      //   // Find and update the option by ID
+      //   await optionModel.option.findByIdAndUpdate(
+      //     option_id,
+      //     {
+      //       $inc: { quantity: -quantity, soldQuantity: quantity },
+      //     },
+      //     { new: true }
+      //   );
+      // }
     }
 
     return res

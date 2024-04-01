@@ -3,10 +3,35 @@ const storeModel = require('../models/Store');
 const productModel = require('../models/Products');
 const accountModel = require('../models/Account');
 
+// const newNotifiOrder = async (orderId) => {
+//     try {
+//         // Lấy thông tin về đơn hàng từ cơ sở dữ liệu
+//         const order = await orderModel.order.findById(orderId);
+
+//         if (!order) {
+//             console.log('Order not found');
+//             return;
+//         }
+
+//         // Tạo thông báo
+//         const notificationOrder = new notifiModel.notifi({
+//             sender_id: sen,
+//             receiver_id: 'ID_nguoi_nhan_thong_bao',
+//             content: 'Nội dung thông báo đơn hàng',
+//             type: 'order',
+//             order_id: orderId,
+//         });
+
+//         const savedNotification = await notificationOrder.save();
+//         console.log('Notification saved:', savedNotification);
+//     } catch (error) {
+//         console.log('Error:', error);
+//     }
+// };
 const newNotifiMessage = async (msg) => {
     try {
-        if(msg){
-            const {sender_id, receiver_id ,content} = msg;
+        if (msg) {
+            const { sender_id, receiver_id, content } = msg;
 
             const obj = new notifiModel.notifi({
                 sender_id: sender_id,
@@ -28,14 +53,14 @@ const newNotifiMessage = async (msg) => {
 const newNotifiComment = async (cmt) => {
     try {
         if (cmt) {
-            const {product_id, user_id, content, rate} = cmt;
+            const { product_id, user_id, content, rate } = cmt;
 
             const product = await productModel.product.findById(product_id).populate({
                 path: 'store_id',
                 model: 'Store',
                 populate: {
-                  path: 'account_id',
-                  model: 'Account',
+                    path: 'account_id',
+                    model: 'Account',
                 },
             });
 
@@ -45,7 +70,7 @@ const newNotifiComment = async (cmt) => {
             }
 
             const account_id = product.store_id.account_id._id;
-        
+
             const notificationContent = content || `Sản phẩm ${product.name} được đánh giá ${rate} sao`;
             const newNotification = new notifiModel.notifi({
                 sender_id: user_id,
@@ -57,29 +82,29 @@ const newNotifiComment = async (cmt) => {
             const savedNotification = await newNotification.save();
             console.log('Document saved:', savedNotification);
 
-            return savedNotification; 
+            return savedNotification;
         }
     } catch (error) {
         console.log('Error:', error);
-        throw error; 
+        throw error;
     }
 }
 
 const allNotificationByUser = async (req, res, next) => {
     try {
-        const {userId} = req.params;
-        
-        const notifications = await notifiModel.notifi.find({ receiver_id: userId })
-        .populate({
-            path: 'sender_id',
-            model: 'account'
-        })
-        .populate({
-            path: 'receiver_id',
-            model: 'account'
-        }).sort({ createdAt: -1 });
+        const { userId } = req.params;
 
-        if(!notifications || notifications.length === 0 ) {
+        const notifications = await notifiModel.notifi.find({ receiver_id: userId })
+            .populate({
+                path: 'sender_id',
+                model: 'account'
+            })
+            .populate({
+                path: 'receiver_id',
+                model: 'account'
+            }).sort({ createdAt: -1 });
+
+        if (!notifications || notifications.length === 0) {
             return res.status(404).json({ code: 404, message: "Không tìm thấy thông báo nào!" });
         }
 
