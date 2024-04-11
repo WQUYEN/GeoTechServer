@@ -274,13 +274,15 @@ const getTopStoreByRevenue = async (req, res, next) => {
     return res.status(500).json({ code: 500, message: error.message });
   }
 }
-
+//Top 5 products doanh thu cao nhất
 const getTopProductByRevenue = async (req, res, next) => {
   try {
+    const { startDate, endDate } = req.query;
     const top5Products = await orderModel.order.aggregate([
       {
         $match: {
           status: 'Đã giao hàng',
+          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
         },
       },
       {
@@ -288,7 +290,7 @@ const getTopProductByRevenue = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'options', 
+          from: 'options',
           localField: 'productsOrder.option_id',
           foreignField: '_id',
           as: 'optionInfo',
@@ -313,7 +315,7 @@ const getTopProductByRevenue = async (req, res, next) => {
           _id: '$productInfo._id',
           productName: { $first: '$productInfo.name' },
           totalRevenue: { $sum: '$total_price' },
-          productImage: { $first: '$optionInfo.image' }, 
+          productImage: { $first: '$optionInfo.image' },
         },
       },
       {
@@ -341,6 +343,128 @@ const getTopProductByRevenue = async (req, res, next) => {
     return res.status(500).json({ code: 500, message: error.message });
   }
 }
+////Top5 người nhiều đơn thành công nhất
+const getTopUsersWithMostSuccessfulOrders = async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const topUsers = await orderModel.order.aggregate([
+      {
+        $match: {
+          status: 'Đã giao hàng', // Lọc các đơn hàng đã giao hàng
+          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      },
+      {
+        $group: {
+          _id: '$user_id',
+          totalSuccessfulOrders: { $sum: 1 }, // Tính tổng số đơn hàng thành công cho mỗi người dùng
+        },
+      },
+      {
+        $lookup: {
+          from: 'accounts', // Tên bảng account trong mô hình của bạn
+          localField: '_id',
+          foreignField: '_id',
+          as: 'userInfo',
+        },
+      },
+      {
+        $unwind: '$userInfo',
+      },
+      {
+        $sort: { totalSuccessfulOrders: -1 },
+      },
+      {
+        $limit: 5,
+      },
+      {
+        $project: {
+          user_id: '$_id',
+          username: '$userInfo.username',
+          userId: '$userInfo._id',
+          totalSuccessfulOrders: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      code: 200,
+      message: "Top 5 người dùng có nhiều đơn hàng thành công nhất!",
+      data: topUsers,
+    });
+  } catch (error) {
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
+//top 5 sp lượt mua nhiều nhất
+const getTopSellingProducts = async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const top10Products = await orderModel.order.aggregate([
+      {
+        $match: {
+          status: 'Đã giao hàng',
+          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      },
+      {
+        $unwind: '$productsOrder',
+      },
+      {
+        $lookup: {
+          from: 'options',
+          localField: 'productsOrder.option_id',
+          foreignField: '_id',
+          as: 'optionInfo',
+        },
+      },
+      {
+        $unwind: '$optionInfo',
+      },
+      {
+        $lookup: {
+          from: 'products', // Tên bảng product trong mô hình của bạn
+          localField: 'optionInfo.product_id',
+          foreignField: '_id',
+          as: 'productInfo',
+        },
+      },
+      {
+        $unwind: '$productInfo',
+      },
+      {
+        $group: {
+          _id: '$productInfo._id',
+          productName: { $first: '$productInfo.name' },
+          totalQuantitySold: { $sum: '$productsOrder.quantity' },
+          productImage: { $first: '$optionInfo.image' },
+        },
+      },
+      {
+        $project: {
+          product_id: '$_id',
+          productName: 1,
+          totalQuantitySold: 1,
+          productImage: 1, // Bao gồm thông tin ảnh trong kết quả
+        },
+      },
+      {
+        $sort: { totalQuantitySold: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
+
+    return res.status(200).json({
+      code: 200,
+      message: "Top 5 sản phẩm bán chạy nhất!",
+      data: top10Products,
+    });
+  } catch (error) {
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
 
 // 2023-11-29T16:15:29.307+00:00
 
@@ -407,7 +531,7 @@ const getTotalRevenueByTimePeriodAndStatus = async (year, month, quarter) => {
         },
       },
       {
-        $sort: { totalRevenue: -1 } 
+        $sort: { totalRevenue: -1 }
       }
     ]);
 
@@ -476,4 +600,6 @@ module.exports = {
   getTopProductByRevenue,
   revenueAllStoreByMonth,
   revenueAllStoreByQuarter,
+  getTopSellingProducts,
+  getTopUsersWithMostSuccessfulOrders
 };

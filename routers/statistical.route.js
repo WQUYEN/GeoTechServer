@@ -9,6 +9,7 @@ router.get("/get-top-store-by-revenue", statisticalController.getTopStoreByReven
 router.get("/get-top-product-by-revenue", statisticalController.getTopProductByRevenue);
 router.get("/get-revenue-all-store-by-month", statisticalController.revenueAllStoreByMonth);
 router.get("/get-revenue-all-store-by-quarter", statisticalController.revenueAllStoreByQuarter);
-
+router.get("/get-top-products-by-sold-quantity", statisticalController.getTopSellingProducts);
+router.get("/get-top-users-by-sold-quantity", statisticalController.getTopUsersWithMostSuccessfulOrders);
 module.exports = router;
 
