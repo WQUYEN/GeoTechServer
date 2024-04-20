@@ -44,6 +44,8 @@ app.use("/api/banner", bannerRoute);
 app.use('/api/message',messageRoute);
 app.use('/api/notifi',notifiRoute);
 app.use('/api/statistical', statisticalRoute);
+var yeuthichRoute = require("./routers/yeuthich.route");
+app.use('/api/yeuthich', yeuthichRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
