@@ -19,9 +19,9 @@ const addFavorite = async (req, res, next) => {
 
 const removeFavorite = async (req, res, next) => {
   try {
-    const { favoriteId } = req.params;
+    const { user_id, product_id } = req.body;
 
-    const favorite = await Yeuthich.findByIdAndRemove(favoriteId);
+    const favorite = await Yeuthich.findOneAndRemove({ user_id, product_id });
     if (!favorite) {
       return res.status(404).json({ success: false, message: "Yêu thích không tồn tại." });
     }
