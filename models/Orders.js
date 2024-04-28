@@ -17,9 +17,11 @@ const orderSchema = new db.mongoose.Schema(
     },
     info_id: {
       type: db.mongoose.Schema.Types.ObjectId,
-      ref: "info",
+      ref: "info",  
       required: true,
     },
+    payment_status: { type: Boolean }, // false = chưa thanh toán
+
   },
   {
     timestamps: true,

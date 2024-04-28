@@ -49,7 +49,9 @@ const createOrder = async (req, res, next) => {
 
     return res.status(201).json({
       code: 201,
-      result: savedOrder,
+      result: {
+      savedOrder: savedOrder
+      },
       message: "created order successfully",
     });
   } catch (error) {
@@ -58,6 +60,78 @@ const createOrder = async (req, res, next) => {
   }
 };
 
+
+const createOrderByZalo = async (req, res, next) => {
+  try {
+    const user_id = req.user._id;
+    const { productsOrder, info_id,payment_status } = req.body;
+
+    const total_price = await calculateTotalPrice(productsOrder);
+    // Sử dụng đối tượng để theo dõi store_id và productsOrder tương ứng
+    const newOrder = new orderModel.order({
+      user_id,
+      productsOrder,
+      total_price,
+      info_id,
+      payment_status,
+    });
+
+    // Save the order to the database
+    const savedOrder = await newOrder.save();
+
+    // Loop through productsOrder array in the order
+    for (const product of productsOrder) {
+      const { option_id, quantity } = product;
+
+      // Find and update the option by ID
+      await optionModel.option.findByIdAndUpdate(
+        option_id,
+        {
+          $inc: { quantity: -quantity, soldQuantity: quantity },
+        },
+        { new: true }
+      );
+    }
+
+    return res.status(201).json({
+      code: 201,
+      result: {
+      savedOrder: savedOrder,
+    },
+      message: "created order successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
+
+const updateOrder = async (req, res, next) => {
+  try {
+    const { order_id } = req.params;
+    const { productsOrder } = req.body;
+
+    // Update the order with new productsOrder
+    const updatedOrder = await orderModel.order.findByIdAndUpdate(
+      order_id,
+      { productsOrder },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Order updated successfully',
+      order: updatedOrder,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update order',
+      error: error.message,
+    });
+  }
+};
 const getOrdersByUserId = async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -403,6 +477,7 @@ const getAllOrder = async (req, res, next) => {
   }
 };
 
+
 module.exports = {
   createOrder,
   getOrdersByUserId,
@@ -412,4 +487,6 @@ module.exports = {
   // collectOrders,
   cancelOrder,
   getAllOrder,
+  createOrderByZalo,
+  updateOrder,
 };

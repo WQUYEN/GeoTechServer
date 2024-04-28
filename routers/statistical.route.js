@@ -11,5 +11,7 @@ router.get("/get-revenue-all-store-by-month", statisticalController.revenueAllSt
 router.get("/get-revenue-all-store-by-quarter", statisticalController.revenueAllStoreByQuarter);
 router.get("/get-top-products-by-sold-quantity", statisticalController.getTopSellingProducts);
 router.get("/get-top-users-by-sold-quantity", statisticalController.getTopUsersWithMostSuccessfulOrders);
+router.get("/get-successful-orders",statisticalController.getSuccessfulOrders);
+router.get("/get-total-revenue",statisticalController.getTotalRevenue);
 module.exports = router;
 

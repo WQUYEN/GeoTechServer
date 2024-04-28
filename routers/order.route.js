@@ -4,6 +4,8 @@ var controller = require("../controllers/order.controller");
 var middleware = require("../middleware/auth.middleware");
 
 router.post("/create-order", middleware.checkToken, controller.createOrder);
+router.post("/create-order-by-zalo", middleware.checkToken,controller.createOrderByZalo);
+//router.put("/update-order-payments_status", middleware.checkToken,controller.updateOrder);
 router.put(
   "/update-order-status/:orderId",
   middleware.checkToken,

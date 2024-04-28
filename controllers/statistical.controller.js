@@ -274,6 +274,73 @@ const getTopStoreByRevenue = async (req, res, next) => {
     return res.status(500).json({ code: 500, message: error.message });
   }
 }
+
+//-----------Tổng doanh thu -----------
+const getTotalRevenue = async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    // Tổng doanh thu
+    const totalRevenue = await orderModel.order.aggregate([
+      {
+        $match: {
+          status: 'Đã giao hàng',
+          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$total_price' },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      code: 200,
+      message: 'Thống kê tổng doanh thu thành công!',
+      data: {
+        totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
+
+//---------Tổng số đơn thành công------------
+const getSuccessfulOrders = async (req, res, next) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    // Tổng số đơn hàng thành công
+    const successfulOrders = await orderModel.order.aggregate([
+      {
+        $match: {
+          status: 'Đã giao hàng',
+          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      code: 200,
+      message: 'Thống kê tổng số đơn hàng thành công!',
+      data: {
+        successfulOrders: successfulOrders.length > 0 ? successfulOrders[0].count : 0,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
+
 //Top 5 products doanh thu cao nhất
 const getTopProductByRevenue = async (req, res, next) => {
   try {
@@ -601,5 +668,7 @@ module.exports = {
   revenueAllStoreByMonth,
   revenueAllStoreByQuarter,
   getTopSellingProducts,
-  getTopUsersWithMostSuccessfulOrders
+  getTopUsersWithMostSuccessfulOrders,
+  getSuccessfulOrders,
+  getTotalRevenue,
 };
