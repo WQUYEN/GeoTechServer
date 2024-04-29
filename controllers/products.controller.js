@@ -220,10 +220,7 @@ const getProductsByCategory = async (req, res, next) => {
           is_active: true,
         };
 
-        // If the user has a store, exclude products from their store
-        // if (userStore) {
-        //   productQuery.store_id = { $ne: userStore._id };
-        // }
+    
 
         const limitedProducts = await productModel.product
           .find(productQuery)
@@ -238,6 +235,8 @@ const getProductsByCategory = async (req, res, next) => {
             );
             const { minPrice, maxPrice } = await getMinMaxPrices(product._id);
             const averageRate = await getAverageRate(product._id);
+            const reviewCount = await getReviewCount(product._id);
+
             const image = await getImageHotOption(product._id);
 
             return {
@@ -247,6 +246,7 @@ const getProductsByCategory = async (req, res, next) => {
               minPrice,
               discounted: product.discounted,
               averageRate,
+              reviewCount,
               review: product.product_review.length,
               soldQuantity: totalSoldQuantity,
             };
@@ -457,6 +457,8 @@ const processProducts = async (products) => {
       const { _id, name, discounted, category_id, option } = product;
       const { minPrice, maxPrice } = await getMinMaxPrices(product._id);
       const averageRate = await getAverageRate(product._id);
+      const reviewCount = await getReviewCount(product._id);
+
       const image = await getImageHotOption(product._id);
       const totalSoldQuantity = await calculateTotalSoldQuantity(
         product.option
@@ -470,6 +472,7 @@ const processProducts = async (products) => {
         image,
         minPrice,
         averageRate,
+        reviewCount,
         review: product.product_review.length,
         active: product.is_active,
         soldQuantity: totalSoldQuantity,
@@ -557,6 +560,7 @@ const getSimilarProducts = async (req, res) => {
         );
         const averageRate = await getAverageRate(similarProduct._id);
         const image = await getImageHotOption(similarProduct._id);
+        const reviewCount = await getReviewCount(similarProduct._id);
         const totalSoldQuantity = await calculateTotalSoldQuantity(
           similarProduct.option
         );
@@ -567,6 +571,7 @@ const getSimilarProducts = async (req, res) => {
           image,
           minPrice,
           averageRate,
+          reviewCount,
           review: similarProduct.product_review.length,
           soldQuantity: totalSoldQuantity,
         };
@@ -598,6 +603,17 @@ const getAverageRate = async (product_id) => {
     const totalRate = rates.reduce((sum, rate) => sum + rate.rate, 0);
     const averageRate = totalRate / rates.length;
     return averageRate;
+  } catch (error) {
+    console.error(error.message);
+    throw error;
+  }
+};
+const getReviewCount = async (product_id) => {
+  try {
+    const reviewCount = await productRateModel.productRate.countDocuments({
+      product_id: product_id
+    });
+    return reviewCount;
   } catch (error) {
     console.error(error.message);
     throw error;
