@@ -3,6 +3,7 @@ const productModel = require("../models/Products");
 const userModel = require("../models/Account");
 const orderModel = require("../models/Orders");
 const optionModel = require("../models/Option");
+const db = require("../config/ConnectDB");
 
 const getAllReviewsForProduct = async (req, res, next) => {
   try {
@@ -14,7 +15,7 @@ const getAllReviewsForProduct = async (req, res, next) => {
 
     const allReviews = await model.productRate
       .find({ product_id: idProduct })
-      .populate(["product_id", "user_id"]);
+      .populate(["product_id", "user_id", "order_id"]);
 
     return res
       .status(200)
@@ -27,10 +28,11 @@ const getAllReviewsForProduct = async (req, res, next) => {
 const inserReview = async (cmt) => {
   try {
     if (cmt) {
-      const { product_id, user_id, content, image, rate } = cmt;
+      const { product_id, user_id, order_id, content, image, rate } = cmt;
       const newReview = new model.productRate({
         product_id: product_id || null,
         user_id: user_id || null,
+        order_id: order_id || null, // Thêm order_id vào đây
         content: content || null,
         image: image || null,
         rate: rate || null,
@@ -48,17 +50,16 @@ const inserReview = async (cmt) => {
 
 const addReview = async (req, res, next) => {
   try {
-    const user = req.user
+    const user = req.user;
     const idProduct = req.params.idProduct;
 
-    let { content, image, rate } = req.body;
+    let { content, image, rate, order_id } = req.body; // Thêm order_id vào đây
 
     const product = await productModel.product.findById(idProduct);
 
     if (!product) {
       return res.status(404).json({ code: 404, message: "product not found" });
     }
-
 
     if (req.file) {
       image = req.file.path;
@@ -67,12 +68,13 @@ const addReview = async (req, res, next) => {
     const newReview = new model.productRate({
       user_id: user._id,
       product_id: idProduct,
+      order_id: order_id, // Thêm order_id vào đây
       image: image,
       content: content,
       rate: rate,
     });
 
-    await newReview.save()
+    await newReview.save();
 
     return res
       .status(201)
@@ -86,7 +88,7 @@ const editReview = async (req, res, next) => {
   try {
     const idComment = req.params.idComment;
 
-    let { product_id, user_id, content, image, rate } = req.body;
+    let { product_id, user_id, content, image, rate, order_id } = req.body; // Thêm order_id vào đây
 
     const product = await productModel.product.findById(product_id);
     if (!product) {
@@ -109,6 +111,7 @@ const editReview = async (req, res, next) => {
           image: image,
           content: content,
           rate: rate,
+          order_id: order_id, // Thêm order_id vào đây
         },
         { new: true }
       )
