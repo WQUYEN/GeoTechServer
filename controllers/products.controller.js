@@ -668,9 +668,16 @@ const getMinMaxPrices = async (product_id) => {
   try {
     const options = await optionModel.option.find(
       { product_id: product_id },
-      "price"
+      "price discount_value"
     );
-    const prices = options.map((option) => option.price);
+    const prices = options.map((option) => {
+      if (option.discount_value === 0) {
+          return option.price;
+      } else {
+    
+          return option.price * (1 - option.discount_value / 100);
+      }
+  });
 
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
