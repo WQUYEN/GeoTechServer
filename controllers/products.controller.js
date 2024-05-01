@@ -363,6 +363,34 @@ const getProductsByCategory = async (req, res, next) => {
 //     return res.status(500).json({ code: 500, message: error.message });
 //   }
 // };
+const getProductById = async (req, res, next) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await productModel.product
+      .findById(productId)
+      .populate(["option", "category_id", "product_review"]);
+
+    if (!product) {
+      return res.status(404).json({ code: 404, message: "Product not found" });
+    }
+
+    const optionImages = product.option.map((option) => option.image);
+    const result = {
+      ...product._doc,
+      image: optionImages,
+    };
+
+    return res.status(200).json({
+      code: 200,
+      result,
+      message: "Get product by id successfully",
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
 
 const getAllProducts = async (req, res, next) => {
   try {
@@ -869,5 +897,6 @@ module.exports = {
   changeActiveProduct,
   deleteOption,
   deleteProduct,
+  getProductById,
   // sendEmailToStore,
 };

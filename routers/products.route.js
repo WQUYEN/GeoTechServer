@@ -15,6 +15,9 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 router.get("/all-product", controller.getAllProducts);
+router.get("/getproductbyid/:productId", controller.getProductById);
+
+
 // router.get("/all-product-by-store/:storeId", controller.getProductsByStore);
 router.get("/all-product-by-category", controller.getProductsByCategory);
 router.get("/detail-product/:productId", controller.detailProduct);

@@ -15,7 +15,7 @@ const getAllReviewsForProduct = async (req, res, next) => {
 
     const allReviews = await model.productRate
       .find({ product_id: idProduct })
-      .populate(["product_id", "user_id", "order_id"]);
+      .populate(["product_id", "user_id",]);
 
     return res
       .status(200)
@@ -25,15 +25,45 @@ const getAllReviewsForProduct = async (req, res, next) => {
   }
 };
 
+const getReviewByOrderProductUser = async (req, res, next) => {
+  try {
+    const { order_id, product_id, user_id } = req.body; // Assuming data comes from request body
+
+    // Validate input (optional)
+    if (!order_id || !product_id || !user_id) {
+      return res.status(400).json({ code: 400, message: "Missing required fields" });
+    }
+
+    const review = await model.productRate.findOne({
+      order_id,
+      product_id,
+      user_id,
+    }).populate(["product_id", "user_id"]);
+
+    if (!review) {
+      return res.status(404).json({ code: 404, message: "Review not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ code: 200, data: review, message: "Review found successfully" });
+  } catch (error) {
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
+
+
 const inserReview = async (cmt) => {
   try {
     if (cmt) {
-      const { product_id, user_id, order_id, content, image, rate } = cmt;
+      const { product_id, user_id, order_id, content,name, image, rate } = cmt;
       const newReview = new model.productRate({
         product_id: product_id || null,
         user_id: user_id || null,
         order_id: order_id || null, // Thêm order_id vào đây
         content: content || null,
+        name: name || null,
+
         image: image || null,
         rate: rate || null,
       });
@@ -53,7 +83,7 @@ const addReview = async (req, res, next) => {
     const user = req.user;
     const idProduct = req.params.idProduct;
 
-    let { content, image, rate, order_id } = req.body; // Thêm order_id vào đây
+    let { content,name, image, rate, order_id } = req.body; // Thêm order_id vào đây
 
     const product = await productModel.product.findById(idProduct);
 
@@ -71,6 +101,7 @@ const addReview = async (req, res, next) => {
       order_id: order_id, // Thêm order_id vào đây
       image: image,
       content: content,
+      name:name,
       rate: rate,
     });
 
@@ -88,7 +119,7 @@ const editReview = async (req, res, next) => {
   try {
     const idComment = req.params.idComment;
 
-    let { product_id, user_id, content, image, rate, order_id } = req.body; // Thêm order_id vào đây
+    let { product_id, user_id, content,name, image, rate, order_id } = req.body; // Thêm order_id vào đây
 
     const product = await productModel.product.findById(product_id);
     if (!product) {
@@ -110,6 +141,7 @@ const editReview = async (req, res, next) => {
         {
           image: image,
           content: content,
+          name:name,
           rate: rate,
           order_id: order_id, // Thêm order_id vào đây
         },
@@ -156,4 +188,5 @@ module.exports = {
   deleteReview,
   inserReview,
   getAllReviewsForProduct,
+  getReviewByOrderProductUser,
 };
