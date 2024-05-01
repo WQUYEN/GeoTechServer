@@ -3,31 +3,31 @@ const storeModel = require('../models/Store');
 const productModel = require('../models/Products');
 const accountModel = require('../models/Account');
 
-// const newNotifiOrder = async (orderId) => {
-//     try {
-//         // Lấy thông tin về đơn hàng từ cơ sở dữ liệu
-//         const order = await orderModel.order.findById(orderId);
+const createNotification = async (req, res, next) => {
+    try {
+        const { sender_id, receiver_id, content, type } = req.body;
 
-//         if (!order) {
-//             console.log('Order not found');
-//             return;
-//         }
+        const newNotification = new notifiModel.notifi({
+            sender_id: sender_id,
+            receiver_id: receiver_id,
+            content: content,
+            type: type
+        });
 
-//         // Tạo thông báo
-//         const notificationOrder = new notifiModel.notifi({
-//             sender_id: sen,
-//             receiver_id: 'ID_nguoi_nhan_thong_bao',
-//             content: 'Nội dung thông báo đơn hàng',
-//             type: 'order',
-//             order_id: orderId,
-//         });
+        const savedNotification = await newNotification.save();
+        console.log('Document saved:', savedNotification);
 
-//         const savedNotification = await notificationOrder.save();
-//         console.log('Notification saved:', savedNotification);
-//     } catch (error) {
-//         console.log('Error:', error);
-//     }
-// };
+        return res.status(201).json({
+            code: 201,
+            result: savedNotification,
+            message: "Tạo thông báo mới thành công",
+        });
+    } catch (error) {
+        console.log('Error:', error);
+        return res.status(500).json({ code: 500, message: error.message });
+    }
+}
+
 const newNotifiMessage = async (msg) => {
     try {
         if (msg) {
@@ -140,5 +140,6 @@ module.exports = {
     newNotifiMessage,
     newNotifiComment,
     allNotificationByUser,
-    updateStatusNotifi
+    updateStatusNotifi,
+    createNotification,
 };
