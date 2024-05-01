@@ -9,7 +9,9 @@ const calculateTotalPrice = async (productsOrder) => {
     const option = await optionModel.option.findById(product.option_id);
 
     if (option) {
-      totalPrice += option.price * product.quantity;
+      console.log(product.discountValue);
+      const discountValue = product.discount_value || 0;
+      totalPrice += (option.price*(1-discountValue/100) )* product.quantity;
     }
   }
 
@@ -20,7 +22,7 @@ const createOrder = async (req, res, next) => {
   try {
     const user_id = req.user._id;
     const { productsOrder, info_id } = req.body;
-
+    console.log("test"+productsOrder);
     const total_price = await calculateTotalPrice(productsOrder);
     // Sử dụng đối tượng để theo dõi store_id và productsOrder tương ứng
     const newOrder = new orderModel.order({

@@ -7,6 +7,7 @@ const orderSchema = new db.mongoose.Schema(
       {
         option_id: { type: db.mongoose.Schema.Types.ObjectId, ref: "option" },
         quantity: { type: Number },
+        discount_value: { type: Number},
       },
     ],
     total_price: { type: Number }, //tổng tiền tất cả mặt hàng

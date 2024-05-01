@@ -342,74 +342,74 @@ const getSuccessfulOrders = async (req, res, next) => {
 };
 
 //Top 5 products doanh thu cao nhất
-const getTopProductByRevenue = async (req, res, next) => {
-  try {
-    const { startDate, endDate } = req.query;
-    const top5Products = await orderModel.order.aggregate([
-      {
-        $match: {
-          status: 'Đã giao hàng',
-          createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+  const getTopProductByRevenue = async (req, res, next) => {
+    try {
+      const { startDate, endDate } = req.query;
+      const top5Products = await orderModel.order.aggregate([
+        {
+          $match: {
+            status: 'Đã giao hàng',
+            createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+          },
         },
-      },
-      {
-        $unwind: '$productsOrder',
-      },
-      {
-        $lookup: {
-          from: 'options',
-          localField: 'productsOrder.option_id',
-          foreignField: '_id',
-          as: 'optionInfo',
+        {
+          $unwind: '$productsOrder',
         },
-      },
-      {
-        $unwind: '$optionInfo',
-      },
-      {
-        $lookup: {
-          from: 'products', // Tên bảng product trong mô hình của bạn
-          localField: 'optionInfo.product_id',
-          foreignField: '_id',
-          as: 'productInfo',
+        {
+          $lookup: {
+            from: 'options',
+            localField: 'productsOrder.option_id',
+            foreignField: '_id',
+            as: 'optionInfo',
+          },
         },
-      },
-      {
-        $unwind: '$productInfo',
-      },
-      {
-        $group: {
-          _id: '$productInfo._id',
-          productName: { $first: '$productInfo.name' },
-          totalRevenue: { $sum: '$total_price' },
-          productImage: { $first: '$optionInfo.image' },
+        {
+          $unwind: '$optionInfo',
         },
-      },
-      {
-        $project: {
-          product_id: '$_id',
-          productName: 1,
-          totalRevenue: 1,
-          productImage: 1, // Bao gồm thông tin ảnh trong kết quả
+        {
+          $lookup: {
+            from: 'products', // Tên bảng product trong mô hình của bạn
+            localField: 'optionInfo.product_id',
+            foreignField: '_id',
+            as: 'productInfo',
+          },
         },
-      },
-      {
-        $sort: { totalRevenue: -1 },
-      },
-      {
-        $limit: 5,
-      },
-    ]);
+        {
+          $unwind: '$productInfo',
+        },
+        {
+          $group: {
+            _id: '$productInfo._id',
+            productName: { $first: '$productInfo.name' },
+            totalRevenue: { $sum: '$total_price' },
+            productImage: { $first: '$optionInfo.image' },
+          },
+        },
+        {
+          $project: {
+            product_id: '$_id',
+            productName: 1,
+            totalRevenue: 1,
+            productImage: 1, // Bao gồm thông tin ảnh trong kết quả
+          },
+        },
+        {
+          $sort: { totalRevenue: -1 },
+        },
+        {
+          $limit: 5,
+        },
+      ]);
 
-    return res.status(200).json({
-      code: 200,
-      message: "Top 5 sản phẩm có doanh thu cao nhất!",
-      data: top5Products,
-    });
-  } catch (error) {
-    return res.status(500).json({ code: 500, message: error.message });
+      return res.status(200).json({
+        code: 200,
+        message: "Top 5 sản phẩm có doanh thu cao nhất!",
+        data: top5Products,
+      });
+    } catch (error) {
+      return res.status(500).json({ code: 500, message: error.message });
+    }
   }
-}
 ////Top5 người nhiều đơn thành công nhất
 const getTopUsersWithMostSuccessfulOrders = async (req, res, next) => {
   try {
