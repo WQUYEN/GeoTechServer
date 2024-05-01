@@ -82,6 +82,21 @@ const updateCartItemQuantity = async (req, res, next) => {
   try {
     const cartItemId = req.params.id;
     const { quantity } = req.body;
+    // Get the cart item information
+    const cartItem = await models.cart.findById(cartItemId);
+
+    if (!cartItem) {
+      return res.status(404).json({ code: 404, message: "Cart item not found" });
+    }
+    // Get the option information
+    const option = await optionModels.option.findOne({ _id: cartItem.option_id });
+
+    if (!option || quantity > option.quantity) {
+      return res.status(404).json({
+        code: 404,
+        message: "Không thể mua quá số lượng sản phẩm trong kho",
+      });
+    }
 
     const updatedCartItem = await models.cart.findByIdAndUpdate(
       cartItemId,

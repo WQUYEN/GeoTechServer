@@ -106,32 +106,32 @@ const createOrderByZalo = async (req, res, next) => {
   }
 };
 
-const updateOrder = async (req, res, next) => {
-  try {
-    const { order_id } = req.params;
-    const { productsOrder } = req.body;
+// const updateOrder = async (req, res, next) => {
+//   try {
+//     const { order_id } = req.params;
+//     const { productsOrder } = req.body;
 
-    // Update the order with new productsOrder
-    const updatedOrder = await orderModel.order.findByIdAndUpdate(
-      order_id,
-      { productsOrder },
-      { new: true }
-    );
+//     // Update the order with new productsOrder
+//     const updatedOrder = await orderModel.order.findByIdAndUpdate(
+//       order_id,
+//       { productsOrder },
+//       { new: true }
+//     );
 
-    res.status(200).json({
-      success: true,
-      message: 'Order updated successfully',
-      order: updatedOrder,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update order',
-      error: error.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       message: 'Order updated successfully',
+//       order: updatedOrder,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Failed to update order',
+//       error: error.message,
+//     });
+//   }
+// };
 const getOrdersByUserId = async (req, res, next) => {
   try {
     const userId = req.user._id;
@@ -255,6 +255,11 @@ const updateOrderStatus = async (req, res, next) => {
         .json({ code: 409, message: "Don't change status order" });
     }
 
+    if(order.status == "Chờ giao hàng"){
+      return res
+      .status(409)
+      .json({ code: 409, message: "Đơn hàng đã được xác nhận, không thể hủy đơn" });
+    }
     const updatedOrder = await orderModel.order.findByIdAndUpdate(
       orderId,
       { status },
@@ -488,5 +493,5 @@ module.exports = {
   cancelOrder,
   getAllOrder,
   createOrderByZalo,
-  updateOrder,
+  
 };
