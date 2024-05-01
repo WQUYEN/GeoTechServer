@@ -220,10 +220,7 @@ const getProductsByCategory = async (req, res, next) => {
           is_active: true,
         };
 
-        // If the user has a store, exclude products from their store
-        // if (userStore) {
-        //   productQuery.store_id = { $ne: userStore._id };
-        // }
+    
 
         const limitedProducts = await productModel.product
           .find(productQuery)
@@ -238,6 +235,8 @@ const getProductsByCategory = async (req, res, next) => {
             );
             const { minPrice, maxPrice } = await getMinMaxPrices(product._id);
             const averageRate = await getAverageRate(product._id);
+            const reviewCount = await getReviewCount(product._id);
+
             const image = await getImageHotOption(product._id);
 
             return {
@@ -247,6 +246,7 @@ const getProductsByCategory = async (req, res, next) => {
               minPrice,
               discounted: product.discounted,
               averageRate,
+              reviewCount,
               review: product.product_review.length,
               soldQuantity: totalSoldQuantity,
             };
@@ -363,6 +363,34 @@ const getProductsByCategory = async (req, res, next) => {
 //     return res.status(500).json({ code: 500, message: error.message });
 //   }
 // };
+const getProductById = async (req, res, next) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await productModel.product
+      .findById(productId)
+      .populate(["option", "category_id", "product_review"]);
+
+    if (!product) {
+      return res.status(404).json({ code: 404, message: "Product not found" });
+    }
+
+    const optionImages = product.option.map((option) => option.image);
+    const result = {
+      ...product._doc,
+      image: optionImages,
+    };
+
+    return res.status(200).json({
+      code: 200,
+      result,
+      message: "Get product by id successfully",
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).json({ code: 500, message: error.message });
+  }
+};
 
 const getAllProducts = async (req, res, next) => {
   try {
@@ -457,6 +485,8 @@ const processProducts = async (products) => {
       const { _id, name, discounted, category_id, option } = product;
       const { minPrice, maxPrice } = await getMinMaxPrices(product._id);
       const averageRate = await getAverageRate(product._id);
+      const reviewCount = await getReviewCount(product._id);
+
       const image = await getImageHotOption(product._id);
       const totalSoldQuantity = await calculateTotalSoldQuantity(
         product.option
@@ -470,6 +500,7 @@ const processProducts = async (products) => {
         image,
         minPrice,
         averageRate,
+        reviewCount,
         review: product.product_review.length,
         active: product.is_active,
         soldQuantity: totalSoldQuantity,
@@ -557,6 +588,7 @@ const getSimilarProducts = async (req, res) => {
         );
         const averageRate = await getAverageRate(similarProduct._id);
         const image = await getImageHotOption(similarProduct._id);
+        const reviewCount = await getReviewCount(similarProduct._id);
         const totalSoldQuantity = await calculateTotalSoldQuantity(
           similarProduct.option
         );
@@ -567,6 +599,7 @@ const getSimilarProducts = async (req, res) => {
           image,
           minPrice,
           averageRate,
+          reviewCount,
           review: similarProduct.product_review.length,
           soldQuantity: totalSoldQuantity,
         };
@@ -598,6 +631,17 @@ const getAverageRate = async (product_id) => {
     const totalRate = rates.reduce((sum, rate) => sum + rate.rate, 0);
     const averageRate = totalRate / rates.length;
     return averageRate;
+  } catch (error) {
+    console.error(error.message);
+    throw error;
+  }
+};
+const getReviewCount = async (product_id) => {
+  try {
+    const reviewCount = await productRateModel.productRate.countDocuments({
+      product_id: product_id
+    });
+    return reviewCount;
   } catch (error) {
     console.error(error.message);
     throw error;
@@ -853,5 +897,6 @@ module.exports = {
   changeActiveProduct,
   deleteOption,
   deleteProduct,
+  getProductById,
   // sendEmailToStore,
 };
