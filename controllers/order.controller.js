@@ -161,6 +161,8 @@ const getOrdersByUserId = async (req, res, next) => {
             return {
               option_id: option,
               quantity: productOrder.quantity,
+              discount_value: productOrder.discount_value,
+
             };
           })
         );
