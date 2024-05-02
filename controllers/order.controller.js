@@ -190,58 +190,6 @@ const getOrdersByUserId = async (req, res, next) => {
   }
 };
 
-// const updateOrderStatus = async (req, res, next) => {
-//   try {
-//     const { orderId } = req.params;
-//     const { status } = req.body;
-
-//     const order = await orderModel.order.findById(orderId);
-
-//     if (!order) {
-//       return res.status(404).json({ code: 404, message: "order not found" });
-//     }
-
-//     if (order.status == "Đã hủy") {
-//       return res
-//         .status(409)
-//         .json({ code: 409, message: "Don't change status order" });
-//     }
-
-//     // Cập nhật trạng thái đơn hàng
-   
-//     const updatedOrder = await orderModel.order.findByIdAndUpdate(
-//       orderId,
-//       { status },
-//       { new: true }
-//     );
-
-//     // Khởi tạo một biến để lưu trạng thái ban đầu của đơn hàng
-//     let initialStatus = order.status;
-
-//     // Vòng lặp vô hạn để kiểm tra xem có thay đổi gì trong trạng thái đơn hàng hay không
-//     while (true) {
-//       // Kiểm tra xem có thay đổi gì trong trạng thái đơn hàng hay không
-//       const checkupdatedOrder = await orderModel.order.findById(orderId);
-
-//       // Nếu trạng thái đơn hàng đã thay đổi, gửi dữ liệu mới về client
-//       if (checkupdatedOrder.status !== initialStatus) {
-//         return res.status(200).json({
-//           code: 200,
-//           message: "Update status order successfully",
-//           order: checkupdatedOrder,
-//         });
-//       }
-
-//       // Nếu không có thay đổi, tạm dừng một khoảng thời gian (ví dụ: 1 giây) trước khi kiểm tra lại
-//       await new Promise((resolve) => setTimeout(resolve, 1000));
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ code: 500, message: error.message });
-//   }
-// };
-
-
 const updateOrderStatus = async (req, res, next) => {
   try {
     const { orderId } = req.params;
@@ -253,16 +201,10 @@ const updateOrderStatus = async (req, res, next) => {
       return res.status(404).json({ code: 404, message: "order not found" });
     }
 
-    if (order.status == "Đã hủy") {
+    if (status === "Đã hủy" && (order.status === "Chờ giao hàng" || order.status === "Đã giao hàng" || order.status === "Đang giao hàng")) {
       return res
-        .status(409)
-        .json({ code: 409, message: "Don't change status order" });
-    }
-
-    if(order.status == "Chờ giao hàng"){
-      return res
-      .status(409)
-      .json({ code: 409, message: "Đơn hàng đã được xác nhận, không thể hủy đơn" });
+          .status(409)
+          .json({ code: 409, message: "Don't change status order" });
     }
     const updatedOrder = await orderModel.order.findByIdAndUpdate(
       orderId,
