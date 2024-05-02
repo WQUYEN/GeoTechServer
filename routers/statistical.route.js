@@ -13,5 +13,6 @@ router.get("/get-top-products-by-sold-quantity", statisticalController.getTopSel
 router.get("/get-top-users-by-sold-quantity", statisticalController.getTopUsersWithMostSuccessfulOrders);
 router.get("/get-successful-orders",statisticalController.getSuccessfulOrders);
 router.get("/get-total-revenue",statisticalController.getTotalRevenue);
+router.get("/get-top-least-selling-products", statisticalController.getTopLeastSellingProducts)
 module.exports = router;
 
