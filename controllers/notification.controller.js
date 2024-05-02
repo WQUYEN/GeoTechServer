@@ -5,11 +5,12 @@ const accountModel = require('../models/Account');
 
 const createNotification = async (req, res, next) => {
     try {
-        const { sender_id, receiver_id, content, type } = req.body;
+        const { sender_id, receiver_id, content, type,order_id } = req.body;
 
         const newNotification = new notifiModel.notifi({
             sender_id: sender_id,
             receiver_id: receiver_id,
+            order_id:order_id,
             content: content,
             type: type
         });
